@@ -34,8 +34,10 @@ size, sRGB; the build never upscales.
 
 ## Publish
 
-`dist/` is the whole site. Upload it anywhere that serves static files
-(Cloudflare Pages, Netlify, GitHub Pages) and point the domain at it.
+    tools/deploy-cloudflare.sh   # Cloudflare Pages (needs `npx wrangler login` once per machine)
+    tools/deploy.sh              # GitHub Pages fallback: pushes the built site to the gh-pages branch
+
+Both build first, then upload a clean copy of `dist/` (site pages and images only).
 
 ## Edit text
 
