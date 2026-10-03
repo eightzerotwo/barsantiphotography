@@ -1,0 +1,33 @@
+{
+  "name": "Barsanti Photography",
+  "title": "Barsanti Photography · Architectural and Interior Photographer, Vermont and New England",
+  "tagline": "{Experience} in architectural photography and video, on the ground or in the air.",
+  "region": "Vermont · Massachusetts",
+  "email": "nate.barsanti@me.com",
+  "phone": "802.522.8255",
+  "facebook": "https://www.facebook.com/barsantiphotography/",
+  "photos": "/Users/nate/Desktop/Website",
+  "about": {
+    "lead": "Barsanti Photography was founded in 2012, while I was attending the School of the Museum of Fine Arts, Boston and Berklee College of Music. At the Museum School I studied photography under Jim Dow, and went on to teach classes there in digital technology and advanced lighting. It was also where I was introduced to Chuck Choi and Ed Wonsek, both Boston-based architectural photographers; I began assisting them in 2010 and still do today. Along the way I've also had the pleasure of working with Will Ellis, Jeremy Bittermann and Peter Aaron.",
+    "background": "Both of my parents being working artists, I was encouraged from a young age to explore different mediums. Photography led to editorial work and sports coverage in high school, moving into photography for corporate events, art receptions, and bat mitzvahs, recording sessions with video for Berklee bands. That continued until around 2010, when I discovered architectural photography while shooting large format film, and made the transition, officially starting Barsanti Photography in 2012.",
+    "shoot": "Most of my work is for architects, interior designers, builders and developers: exteriors and interiors on the ground or with drone, and video when a project calls for motion. Remote viewing is available, so you can always be in the loop on every frame.",
+    "licensing": "Photographs are licensed rather than sold. Copyright is retained by Barsanti Photography, and each commission includes a license covering the commissioning firm's own marketing: website, portfolio, social media, award submissions and press. Because the license is specific to that firm, a builder, interior designer or supplier wishing to use the same images arranges a license of their own, which is most economical when set up before the shoot so the cost can be shared. Exclusive use or a full transfer of copyright can also be arranged and is quoted separately."
+  },
+  "clients": [],
+  "publications": [],
+  "collectionOrder": [
+    "Residential",
+    "Commercial"
+  ],
+  "firms": {
+    "SMMA": "https://www.smma.com/",
+    "Lee Kennedy Co.": "https://www.leekennedy.com/",
+    "HMFH Architects": "https://www.hmfh.com/",
+    "South Mountain Company": "https://www.southmountain.com/",
+    "John Cole": "https://www.johncolearchitect.com/",
+    "Maryann Thompson Architects": "https://www.maryannthompson.com/",
+    "Turner Construction": "https://www.turnerconstruction.com/",
+    "Annum Architects": "https://www.annumarchitects.com/"
+  },
+  "since": 2010
+}
