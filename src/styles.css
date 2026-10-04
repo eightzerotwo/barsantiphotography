@@ -113,13 +113,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 .hero {
   position: relative;
-  aspect-ratio: var(--r);
-  overflow: hidden;
+  /* as tall as the tallest slide at full width, but never taller than the window */
+  --h: min(calc(100cqw / var(--r)), calc(100vh - 150px));
+  height: var(--h);
   background: var(--bg);
 }
-.hero__slide { position: absolute; inset: 0; opacity: 0; display: flex; align-items: flex-end; }
+.hero__slide { position: absolute; inset: 0; opacity: 0; display: flex; align-items: flex-end; justify-content: center; }
 .hero__slide.is-on { opacity: 1; }
-.hero__fig { position: relative; width: 100%; margin: 0; }
+/* each slide is as wide as its own shape allows inside the frame: full width, or narrower when height-limited */
+.hero__fig { position: relative; margin: 0; width: min(100%, calc(var(--h) * var(--sr))); }
 .hero__slide img { width: 100%; height: auto; display: block; }
 .hero__cap {
   position: absolute; left: 0; bottom: 0;

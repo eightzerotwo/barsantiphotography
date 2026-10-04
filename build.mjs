@@ -323,7 +323,7 @@ const head = (title, desc) => `<title>${esc(title)}</title>
 // body markup shared by the full page and the artifact-preview fragment
 function body(active, main) {
   return `${header(active)}
-<main class="page">
+<main class="page" style="container-type: inline-size">
 ${main}
 </main>
 ${footer()}
@@ -363,7 +363,7 @@ function buildHomePage() {
     const line = [p.caption, p.credit, p.town].filter(Boolean).join(' | ');
     const alt = line || `${SITE.name} photograph`;
     const cap = (p.credit || p.town) ? `<div class="hero__cap">${linkFirms(line)}</div>` : '';
-    return `<div class="hero__slide${i === 0 ? ' is-on' : ''}"><figure class="hero__fig"><img src="img/${p.slug}-${p.widths[0]}.webp" srcset="${srcset}" sizes="100vw" width="${p.w}" height="${p.h}" alt="${esc(alt)}"${i === 0 ? ' fetchpriority="high"' : i === 1 ? '' : ' loading="lazy" decoding="async"'}>${cap}</figure></div>`;
+    return `<div class="hero__slide${i === 0 ? ' is-on' : ''}"><figure class="hero__fig" style="--sr:${p.ratio.toFixed(4)}"><img src="img/${p.slug}-${p.widths[0]}.webp" srcset="${srcset}" sizes="100vw" width="${p.w}" height="${p.h}" alt="${esc(alt)}"${i === 0 ? ' fetchpriority="high"' : i === 1 ? '' : ' loading="lazy" decoding="async"'}>${cap}</figure></div>`;
   }).join('\n');
   const texts = [
     { after: 0, minCqw: 19, html: `<div class="blk blk--statement">
