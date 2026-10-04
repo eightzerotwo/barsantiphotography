@@ -40,7 +40,9 @@
     img.sizes = '100vw';
     img.src = f.getAttribute('data-full');
     img.alt = f.getAttribute('data-caption') || '';
-    cap.textContent = f.getAttribute('data-caption') || '';
+    // the caption carries the same firm links as the frame's credit line
+    var src = f.querySelector('.ph__cap');
+    if (src) cap.innerHTML = src.innerHTML; else cap.textContent = f.getAttribute('data-caption') || '';
     count.textContent = (current + 1) + ' / ' + figs.length;
     // warm the neighbours
     [current + 1, current - 1].forEach(function (n) {
