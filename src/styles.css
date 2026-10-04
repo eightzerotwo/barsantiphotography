@@ -322,29 +322,26 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .blk__link a, .blk__small a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); padding-bottom: 2px; }
 .blk__link a:hover, .blk__small a:hover { border-bottom-color: var(--ink); }
 .blk__link a::after { content: " \2192"; }
-/* the index: a small specification table in the top bar's face, the way a practice lists its work:
-   section, then where it was photographed; ruled rows, two aligned columns, nothing announced */
-.idx__label {
-  font-family: var(--display); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--mute); padding-bottom: 0.9cqw; border-bottom: 1px solid var(--ink);
+/* the index: the section names as ruled rows in the top bar's face, the way a practice lists its work */
+.blk--index { gap: 0; }   /* the rules carry the rhythm here, not the block gap */
+.idx__label { padding-bottom: 0.8cqw; border-bottom: 1px solid var(--ink); }
+.idx { list-style: none; margin: 0; padding: 0; }
+.idx__row { border-bottom: 1px solid var(--rule); }
+.idx__row:hover { border-bottom-color: var(--ink); }
+.idx__row a {
+  display: block; padding: 1.1cqw 0 1.15cqw;
+  font-family: var(--display); font-size: 12.5px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink); text-decoration: none;
 }
-.idx { margin: 0; display: grid; }
-.idx__row {
-  position: relative;
-  display: grid; grid-template-columns: minmax(8.5em, 2fr) 3fr; column-gap: 1.6cqw; align-items: baseline;
-  padding: 1.05cqw 0 1.1cqw; border-bottom: 1px solid var(--rule);
-  font-family: var(--display); color: var(--ink);
+.idx__row a:hover { color: var(--accent); }
+.idx__contact {
+  display: grid; gap: 1px; padding-top: 1.1cqw;
+  font-style: normal; font-family: var(--display); font-size: 12.5px; line-height: 1.6; letter-spacing: 0.02em;
+  color: var(--mute);
 }
-.idx__row dt { margin: 0; font-size: 12px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
-.idx__row dd { margin: 0; font-size: 12.5px; line-height: 1.55; letter-spacing: 0.02em; color: var(--ink); text-wrap: pretty; }
-.idx__row dt a { text-decoration: none; color: inherit; }
-.idx__row dt a::after { content: ""; position: absolute; inset: 0; }   /* the whole row is the link */
-.idx__row:has(dt a:hover) { border-bottom-color: var(--ink); }
-.idx__row dt a:hover { color: var(--accent); }
-.idx__row--contact dt { color: var(--ink); }
-.idx__row--contact dd { display: grid; gap: 1px; }
-.idx__row--contact dd a { width: fit-content; color: var(--ink-2); text-decoration: none; }
-.idx__row--contact dd a:hover { color: var(--accent); }
+.idx__name { color: var(--ink); font-weight: 500; }
+.idx__contact a { width: fit-content; color: var(--ink-2); text-decoration: none; }
+.idx__contact a:hover { color: var(--accent); }
 
 @media (max-width: 640px) {
   .comp { display: flex; flex-direction: column; gap: var(--gap); }
@@ -357,8 +354,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .blk__label { font-size: 12px; }
   .blk__p { font-size: 18px; }
   .idx__label { padding-bottom: 10px; }
-  .idx__row { grid-template-columns: 1fr; gap: 4px 0; padding: 12px 0 13px; }
-  .idx__row dd { font-size: 13.5px; }
+  .idx__row a { padding: 12px 0 13px; }
+  .idx__contact { font-size: 13px; padding-top: 12px; }
 }
 
 /* ---------- about ---------- */

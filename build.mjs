@@ -170,13 +170,6 @@ function linkFirms(text) {
   return html;
 }
 
-// The places a collection was photographed, read from its captions: alphabetical, towns without the state.
-function places(photos) {
-  const seen = new Set();
-  for (const p of photos) if (p.town) seen.add(p.town.replace(/,\s*[A-Z]{2}$/, '').trim());
-  return [...seen].sort((a, b) => a.localeCompare(b)).join(' · ');
-}
-
 function picture(p, { sizes, eager = false, index }) {
   const srcset = p.widths.map((w) => `img/${p.slug}-${w}.webp ${w}w`).join(', ');
   const largest = p.widths[p.widths.length - 1];
@@ -383,13 +376,17 @@ function buildHomePage() {
   <p class="blk__p">For architects, interior designers, builders and developers: exteriors and interiors on the ground or with drone, and video when a project calls for motion. Remote viewing is available, so you can always be in the loop on every frame.</p>
   <p class="blk__link"><a href="about.html">More about the work</a></p>
 </div>` },
-    { after: 13, minCqw: 20, html: `<nav class="blk blk--index" aria-label="Site index">
-  <p class="idx__label">Index</p>
-  <dl class="idx">
-${collections.map((c) => `    <div class="idx__row"><dt><a href="${c.slug}.html">${esc(c.title)}</a></dt><dd>${esc(places(c.photos))}</dd></div>`).join('\n')}
-    <div class="idx__row"><dt><a href="about.html">About</a></dt><dd>Practice, process and licensing</dd></div>
-    <div class="idx__row idx__row--contact"><dt>Nate Barsanti</dt><dd><a href="tel:+1${SITE.phone.replace(/\D/g, '')}">${SITE.phone}</a><a href="mailto:${SITE.email}">${SITE.email}</a></dd></div>
-  </dl>
+    { after: 13, minCqw: 18, html: `<nav class="blk blk--index" aria-label="Site index">
+  <p class="blk__label idx__label">Explore</p>
+  <ul class="idx">
+${collections.map((c) => `    <li class="idx__row"><a href="${c.slug}.html">${esc(c.title)}</a></li>`).join('\n')}
+    <li class="idx__row"><a href="about.html">About</a></li>
+  </ul>
+  <address class="idx__contact">
+    <span class="idx__name">Nate Barsanti</span>
+    <a href="tel:+1${SITE.phone.replace(/\D/g, '')}">${SITE.phone}</a>
+    <a href="mailto:${SITE.email}">${SITE.email}</a>
+  </address>
 </nav>` },
   ];
   const main = `<section class="hero" id="hero" style="--r:${heroRatio.toFixed(4)}" aria-label="Featured photographs">
