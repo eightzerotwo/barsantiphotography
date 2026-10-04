@@ -12,6 +12,7 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, existsSy
 import { execFileSync, execFile } from 'node:child_process';
 import { join, basename, extname } from 'node:path';
 import { promisify } from 'node:util';
+import { createHash } from 'node:crypto';
 
 const execFileP = promisify(execFile);
 const ROOT = new URL('.', import.meta.url).pathname;
@@ -348,6 +349,11 @@ const lightbox = () => `<div class="lb" id="lightbox" hidden role="dialog" aria-
 </div>`;
 
 // Share cards (iMessage, Slack, Facebook) read the og: tags: a clean name, the tagline, and the lead slide.
+// Each asset link carries a short hash of its contents, so a changed stylesheet or script is never
+// served stale from the browser's copy of the previous one (GitHub Pages caches every URL for ten minutes).
+const stamp = (file) => createHash('sha256').update(readFileSync(join(ROOT, file))).digest('hex').slice(0, 8);
+const CSS_V = stamp('src/styles.css'), JS_V = stamp('src/main.js');
+
 const head = (title, desc, { ogTitle = SITE.name, image = null, path = '' } = {}) => `<title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <meta property="og:site_name" content="${esc(SITE.name)}">
@@ -362,7 +368,7 @@ ${image && SITE.url ? (({ file, w, h }) => `<meta property="og:image" content="$
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..600&family=Roboto+Flex:wdth,wght@100..125,300..700&display=swap">
-<link rel="stylesheet" href="styles.css">`;
+<link rel="stylesheet" href="styles.css?v=${CSS_V}">`;
 
 // body markup shared by the full page and the artifact-preview fragment
 function body(active, main) {
@@ -372,7 +378,7 @@ ${main}
 </main>
 ${footer()}
 ${lightbox()}
-<script src="main.js" defer></script>`;
+<script src="main.js?v=${JS_V}" defer></script>`;
 }
 
 const doc = (title, desc, active, main, share) => `<!doctype html>
