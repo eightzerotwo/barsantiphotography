@@ -279,32 +279,33 @@ function compose(photos, texts, startIndex = 0) {
   }
   cells.sort((a, b) => a.y - b.y || a.c - b.c);
   phoneLayout(cells);
-  return cells.map((it) => `<div class="cell${it.kind === 'text' ? ' cell--text' + (it.c > 1 ? ' cell--right' : '') + (it.y === 0 ? ' cell--lead' : '') : ''}" style="--c:${it.c};--s:${it.s};--r:${U(it.y) + 1};--n:${U(it.h)};--mc:${it.mc};--ms:${it.ms}">${it.html}</div>`).join('\n');
+  return cells.map((it) => `<div class="cell${it.kind === 'text' ? ' cell--text' + (it.c > 1 ? ' cell--right' : '') + (it.y === 0 ? ' cell--lead' : '') : ''}" style="--c:${it.c};--s:${it.s};--r:${U(it.y) + 1};--n:${U(it.h)};--mn:${it.mn};--mw:${it.mshare}">${it.html}</div>`).join('\n');
 }
 
-// Phone rhythm (≤640px), on the same 12-column grid: landscapes run full width, with every third one
-// stepped in to nine columns on alternating sides; two portraits in a row share a row, their widths
-// proportional to their shapes so they stand the same height; a lone portrait sits eight columns wide,
-// alternating left and right. Text blocks take the full width. Photos stay whole at every size.
+// Phone layout (≤640px): justified rows, the algorithm Flickr published and most photo-grid plugins use.
+// Photos are taken in order; each row is filled edge to edge, every photo in it scaled to the same
+// height, with the row closed when that height nears the target (PHONE_ROW, in px, at a 390px screen).
+// A photo joins a row only if that brings the height closer to the target than closing the row would;
+// a portrait may be pulled up from the next two cells so two portraits can share a row. Text blocks
+// take a row of their own. No photo is ever cropped: widths are set in proportion to the shapes.
+const PHONE_ROW = SITE.phoneRowHeight || 300, PHONE_W = 358, PHONE_GAP = 10;
 function phoneLayout(cells) {
-  let land = 0, side = 0;
+  const rowH = (row) => (PHONE_W - (row.length - 1) * PHONE_GAP) / row.reduce((t, c) => t + c.ratio, 0);
+  const off = (h) => Math.abs(Math.log(h / PHONE_ROW));
+  const close = (row) => { const sum = row.reduce((t, c) => t + c.ratio, 0); for (const c of row) { c.mn = row.length; c.mshare = (c.ratio / sum).toFixed(4); } };
+  let row = [];
   for (let i = 0; i < cells.length; i++) {
     const it = cells[i];
-    if (it.kind === 'text') { it.mc = 1; it.ms = 12; continue; }
-    if (it.ratio < 1) {
-      // desktop placement is explicit, so the DOM may be reordered for the phone: pull a portrait
-      // from the next two cells up beside this one so the pair shares a row
+    if (it.kind === 'text') { if (row.length) close(row); row = []; it.mn = 1; it.mshare = '1'; continue; }
+    if (it.ratio < 1 && !row.length) {   // desktop placement is explicit, so the DOM may be reordered for the phone
       const k = [i + 2, i + 3].find((j) => j < cells.length && cells[j].kind === 'img' && cells[j].ratio < 1 && cells[i + 1]?.kind === 'img');
       if (k !== undefined) cells.splice(i + 1, 0, cells.splice(k, 1)[0]);
-      const nx = cells[i + 1];
-      if (nx && nx.kind === 'img' && nx.ratio < 1) {
-        const s1 = Math.max(4, Math.min(8, Math.round((12 * it.ratio) / (it.ratio + nx.ratio))));
-        it.mc = 1; it.ms = s1; nx.mc = 1 + s1; nx.ms = 12 - s1; i++;
-      } else { it.ms = 8; it.mc = side++ % 2 ? 5 : 1; }
-      continue;
     }
-    if (land++ % 3 === 2) { it.ms = 9; it.mc = side++ % 2 ? 4 : 1; } else { it.mc = 1; it.ms = 12; }
+    if (row.length && off(rowH([...row, it])) >= off(rowH(row))) { close(row); row = []; }
+    row.push(it);
+    if (rowH(row) <= PHONE_ROW) { close(row); row = []; }
   }
+  if (row.length) close(row);
 }
 
 const nav = (active) => {

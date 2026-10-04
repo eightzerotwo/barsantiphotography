@@ -344,10 +344,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .idx__contact a:hover { color: var(--accent); }
 
 @media (max-width: 640px) {
-  /* the phone keeps the 12-column grid but reflows it by the --mc/--ms plan from the build */
-  .comp { grid-auto-rows: auto; gap: var(--gap); align-items: start; }
-  .cell { grid-column: var(--mc) / span var(--ms); grid-row: auto; }
-  .cell--text { display: block; overflow: visible; padding: 16px 0; }
+  /* the phone reflows the same cells into justified rows planned by the build (--mn photos in the row, --mw this photo's share) */
+  .comp { display: flex; flex-wrap: wrap; gap: var(--gap); align-items: flex-start; }
+  .cell { flex: 0 0 calc((100% - (var(--mn) - 1) * var(--gap)) * var(--mw) - 0.5px); }
+  .cell--text { flex-basis: 100%; display: block; overflow: visible; padding: 16px 0; }
   .blk { gap: 14px; padding-block: 0; }
   .blk__h { font-size: 26px; }
   .blk--title .blk__h { font-size: 32px; }

@@ -44,4 +44,7 @@ Both build first, then upload a clean copy of `dist/` (site pages and images onl
 `src/site.json` holds the tagline, about text, contact details and region. The tagline may use
 `{Experience}`, which the build fills with "Over N years of experience" from `since`, rounded down to 5s. `collectionOrder` sets the nav order of
 the folders. `clients` and `publications` are empty lists; fill them and a Clients / Published in block appears on About.
+On phones (≤640px) the photos reflow into justified rows (Flickr's algorithm): each row fills the width, every photo in it at
+the same height, nothing cropped. `phoneRowHeight` (optional, default 300) is the target row height in px at a 390px screen;
+lower it and more photos share a row, raise it and more run full width.
 `src/styles.css` and `src/main.js` are copied into `dist/` as-is.
