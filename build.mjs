@@ -127,6 +127,16 @@ async function encode(photo) {
   photo.tiny = '';
 }
 
+// Share-card image: link previews are safest with a JPEG, so the lead photo also gets a 1600px JPEG.
+function shareImage(photo) {
+  const w = Math.min(1600, photo.w), h = Math.round(w / photo.ratio);
+  const out = join(IMG, `${photo.slug}-share.jpg`);
+  if (!(existsSync(out) && statSync(out).mtimeMs > photo.mtime && Math.abs(dims(out).w / dims(out).h - photo.ratio) / photo.ratio < 0.01)) {
+    execFileSync('sips', ['-s', 'format', 'jpeg', '-s', 'formatOptions', '85', '-Z', String(w), srgbSource(photo), '--out', out], { stdio: 'ignore' });
+  }
+  return { file: `img/${photo.slug}-share.jpg`, w, h };
+}
+
 async function pool(items, n, fn) {
   const q = [...items];
   await Promise.all(Array.from({ length: n }, async () => { while (q.length) await fn(q.shift()); }));
@@ -289,7 +299,7 @@ const footer = () => `<footer class="foot">
   <div class="foot__grid">
     <div class="foot__brand">
       <span class="mark mark--foot"><span class="mark__name">Barsanti</span><span class="mark__sub">Photography</span></span>
-      <p class="foot__line">Architectural and interior photography, Vermont and New England.</p>
+      <p class="foot__line">Architectural and interior photography, Vermont and Massachusetts.</p>
     </div>
     <div>
       <h2 class="foot__h">Contact</h2>
@@ -311,10 +321,18 @@ const lightbox = () => `<div class="lb" id="lightbox" hidden role="dialog" aria-
   <div class="lb__count" aria-live="polite"></div>
 </div>`;
 
-const head = (title, desc) => `<title>${esc(title)}</title>
+// Share cards (iMessage, Slack, Facebook) read the og: tags: a clean name, the tagline, and the lead slide.
+const head = (title, desc, { ogTitle = SITE.name, image = null, path = '' } = {}) => `<title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
-<meta property="og:title" content="${esc(title)}">
+<meta property="og:site_name" content="${esc(SITE.name)}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="${esc(ogTitle)}">
 <meta property="og:description" content="${esc(desc)}">
+${SITE.url ? `<meta property="og:url" content="${esc(SITE.url)}/${path}">` : ''}
+${image && SITE.url ? (({ file, w, h }) => `<meta property="og:image" content="${esc(SITE.url)}/${file}">
+<meta property="og:image:width" content="${w}">
+<meta property="og:image:height" content="${h}">
+<meta name="twitter:card" content="summary_large_image">`)(shareImage(image)) : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..600&family=Roboto+Flex:wdth,wght@100..125,300..700&display=swap">
@@ -331,12 +349,12 @@ ${lightbox()}
 <script src="main.js" defer></script>`;
 }
 
-const doc = (title, desc, active, main) => `<!doctype html>
+const doc = (title, desc, active, main, share) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-${head(title, desc)}
+${head(title, desc, share)}
 </head>
 <body>
 ${body(active, main)}
@@ -395,14 +413,14 @@ ${slideHtml}
 <div class="comp-wrap"><section class="comp" aria-label="Home">
 ${compose(rest, texts, 0)}
 </section></div>`;
-  return { main, title: SITE.title, desc: TAGLINE };
+  return { main, title: SITE.title, desc: TAGLINE, share: { image: slides[0], path: '' } };
 }
 
 function collectionPage(c) {
   const main = `<div class="comp-wrap"><section class="comp comp--collection" aria-label="${esc(c.title)}">
 ${compose(c.photos, [], 0)}
 </section></div>`;
-  return { main, title: `${c.title} · ${SITE.name}`, desc: `${c.title} architectural and interior photography by ${SITE.name}.` };
+  return { main, title: `${c.title} · ${SITE.name}`, desc: `${c.title} architectural and interior photography by ${SITE.name}.`, share: { ogTitle: `${c.title} · ${SITE.name}`, image: c.photos[0], path: `${c.slug}.html` } };
 }
 
 function aboutPage() {
@@ -428,7 +446,7 @@ function aboutPage() {
     ${SITE.publications.length ? `<h2 class="about__h">Published in</h2>\n    <ul class="about__list">${SITE.publications.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
   </aside>
 </section>`;
-  return { main, title: `About · ${SITE.name}`, desc: a.lead };
+  return { main, title: `About · ${SITE.name}`, desc: a.lead, share: { ogTitle: `About · ${SITE.name}`, path: 'about.html' } };
 }
 
 // ---------- run ----------
@@ -443,8 +461,8 @@ const pages = [
   ...collections.map((c) => [`${c.slug}.html`, `${c.slug}.html`, collectionPage(c)]),
   ['about.html', 'about.html', aboutPage()],
 ];
-for (const [file, active, { main, title, desc }] of pages) {
-  writeFileSync(join(DIST, file), doc(title, desc, active, main));
+for (const [file, active, { main, title, desc, share }] of pages) {
+  writeFileSync(join(DIST, file), doc(title, desc, active, main, share));
 }
 // Artifact preview: same home page as a fragment (the artifact host supplies the document skeleton).
 writeFileSync(join(DIST, 'preview-index.html'), `${head(SITE.title, TAGLINE)}\n${body('index.html', homePage().main)}\n`);
