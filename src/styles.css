@@ -344,9 +344,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .idx__contact a:hover { color: var(--accent); }
 
 @media (max-width: 640px) {
-  .comp { display: flex; flex-direction: column; gap: var(--gap); }
-  .cell .ph__btn { aspect-ratio: var(--r); height: auto; }
-  .cell--text { display: block; overflow: visible; padding-block: 16px; }
+  /* the phone keeps the 12-column grid but reflows it by the --mc/--ms plan from the build */
+  .comp { grid-auto-rows: auto; gap: var(--gap); align-items: start; }
+  .cell { grid-column: var(--mc) / span var(--ms); grid-row: auto; }
+  .cell--text { display: block; overflow: visible; padding: 16px 0; }
   .blk { gap: 14px; padding-block: 0; }
   .blk__h { font-size: 26px; }
   .blk--title .blk__h { font-size: 32px; }

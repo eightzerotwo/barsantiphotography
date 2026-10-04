@@ -228,7 +228,7 @@ function compose(photos, texts, startIndex = 0) {
   let i = startIndex, top = 0, seg = 0;
   const cells = [];
   const isP = (p) => p.ratio < 1;
-  const emit = (c, s, y, h, html, kind) => cells.push({ c, s, y, h, html, kind });
+  const emit = (c, s, y, h, html, kind, ratio = 0) => cells.push({ c, s, y, h, html, kind, ratio });
   const img = (p, s) => picture(p, { sizes: `(max-width: 640px) 100vw, ${Math.round((s / 12) * 100)}vw`, index: i++ });
   const fits = (it, s) => it.kind === 'text' ? (s >= 4 && s <= 5) : (isP(it.p) ? s <= 5 : true);
   const height = (it, s) => it.kind === 'text' ? it.minCqw + 2 : H(s, it.p.ratio);
@@ -249,7 +249,7 @@ function compose(photos, texts, startIndex = 0) {
         if (kk >= 0) {
           const it = q.splice(kk, 1)[0];
           const h = height(it, short.s);
-          emit(short.c, short.s, short.y, h, it.kind === 'text' ? it.html : img(it.p, short.s), it.kind);
+          emit(short.c, short.s, short.y, h, it.kind === 'text' ? it.html : img(it.p, short.s), it.kind, it.p?.ratio);
           short.y += h + GAP; placed++;
           break;                                     // level: segment ends here
         }
@@ -259,7 +259,7 @@ function compose(photos, texts, startIndex = 0) {
         if (k < 0 || k > 2) continue;                 // look at most three items ahead
         const it = q.splice(k, 1)[0];
         const h = height(it, col.s);
-        emit(col.c, col.s, col.y, h, it.kind === 'text' ? it.html : img(it.p, col.s), it.kind);
+        emit(col.c, col.s, col.y, h, it.kind === 'text' ? it.html : img(it.p, col.s), it.kind, it.p?.ratio);
         col.y += h + GAP; placed++; done = true; break;
       }
       if (!done) { // nothing within lookahead fits: search the whole queue, then force
@@ -267,7 +267,7 @@ function compose(photos, texts, startIndex = 0) {
         if (k < 0) { k = q.findIndex((it) => fits(it, order[1].s)); col = order[1]; }
         if (k < 0) { k = 0; col = order[0]; }
         const it = q.splice(k, 1)[0]; const h = height(it, col.s);
-        emit(col.c, col.s, col.y, h, it.kind === 'text' ? it.html : img(it.p, col.s), it.kind); col.y += h + GAP; placed++;
+        emit(col.c, col.s, col.y, h, it.kind === 'text' ? it.html : img(it.p, col.s), it.kind, it.p?.ratio); col.y += h + GAP; placed++;
       }
       const diff = Math.abs(cols[0].y - cols[1].y);
       if (placed >= 4 && diff <= 3) break;         // columns level enough: end the segment
@@ -277,7 +277,33 @@ function compose(photos, texts, startIndex = 0) {
     // (no full-width beats: the hero is the only full-width image)
   }
   cells.sort((a, b) => a.y - b.y || a.c - b.c);
-  return cells.map((it) => `<div class="cell${it.kind === 'text' ? ' cell--text' + (it.c > 1 ? ' cell--right' : '') + (it.y === 0 ? ' cell--lead' : '') : ''}" style="--c:${it.c};--s:${it.s};--r:${U(it.y) + 1};--n:${U(it.h)}">${it.html}</div>`).join('\n');
+  phoneLayout(cells);
+  return cells.map((it) => `<div class="cell${it.kind === 'text' ? ' cell--text' + (it.c > 1 ? ' cell--right' : '') + (it.y === 0 ? ' cell--lead' : '') : ''}" style="--c:${it.c};--s:${it.s};--r:${U(it.y) + 1};--n:${U(it.h)};--mc:${it.mc};--ms:${it.ms}">${it.html}</div>`).join('\n');
+}
+
+// Phone rhythm (≤640px), on the same 12-column grid: landscapes run full width, with every third one
+// stepped in to nine columns on alternating sides; two portraits in a row share a row, their widths
+// proportional to their shapes so they stand the same height; a lone portrait sits eight columns wide,
+// alternating left and right. Text blocks take the full width. Photos stay whole at every size.
+function phoneLayout(cells) {
+  let land = 0, side = 0;
+  for (let i = 0; i < cells.length; i++) {
+    const it = cells[i];
+    if (it.kind === 'text') { it.mc = 1; it.ms = 12; continue; }
+    if (it.ratio < 1) {
+      // desktop placement is explicit, so the DOM may be reordered for the phone: pull a portrait
+      // from the next two cells up beside this one so the pair shares a row
+      const k = [i + 2, i + 3].find((j) => j < cells.length && cells[j].kind === 'img' && cells[j].ratio < 1 && cells[i + 1]?.kind === 'img');
+      if (k !== undefined) cells.splice(i + 1, 0, cells.splice(k, 1)[0]);
+      const nx = cells[i + 1];
+      if (nx && nx.kind === 'img' && nx.ratio < 1) {
+        const s1 = Math.max(4, Math.min(8, Math.round((12 * it.ratio) / (it.ratio + nx.ratio))));
+        it.mc = 1; it.ms = s1; nx.mc = 1 + s1; nx.ms = 12 - s1; i++;
+      } else { it.ms = 8; it.mc = side++ % 2 ? 5 : 1; }
+      continue;
+    }
+    if (land++ % 3 === 2) { it.ms = 9; it.mc = side++ % 2 ? 4 : 1; } else { it.mc = 1; it.ms = 12; }
+  }
 }
 
 const nav = (active) => {
