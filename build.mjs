@@ -376,11 +376,18 @@ function buildHomePage() {
   <p class="blk__p">For architects, interior designers, builders and developers: exteriors and interiors on the ground or with drone, and video when a project calls for motion. Remote viewing is available, so you can always be in the loop on every frame.</p>
   <p class="blk__link"><a href="about.html">More about the work</a></p>
 </div>` },
-    { after: 13, minCqw: 11, html: `<div class="blk blk--links">
+    { after: 13, minCqw: 24, html: `<nav class="blk blk--index" aria-label="Site index">
   <p class="blk__label">Explore</p>
-  <p class="blk__big">${collections.map((c) => `<a href="${c.slug}.html">${esc(c.title)}</a>`).join('')}<a href="about.html">About Nate</a></p>
-  <p class="blk__small">Nate Barsanti · <a href="tel:+1${SITE.phone.replace(/\D/g, '')}">${SITE.phone}</a> · <a href="mailto:${SITE.email}">${SITE.email}</a></p>
-</div>` },
+  <ul class="idx">
+${collections.map((c) => `    <li><a href="${c.slug}.html">${esc(c.title)}</a></li>`).join('\n')}
+    <li><a href="about.html">About Nate</a></li>
+  </ul>
+  <address class="idx__contact">
+    <span class="idx__name">Nate Barsanti</span>
+    <a href="tel:+1${SITE.phone.replace(/\D/g, '')}">${SITE.phone}</a>
+    <a href="mailto:${SITE.email}">${SITE.email}</a>
+  </address>
+</nav>` },
   ];
   const main = `<section class="hero" id="hero" style="--r:${heroRatio.toFixed(4)}" aria-label="Featured photographs">
 ${slideHtml}
