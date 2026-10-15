@@ -20,6 +20,8 @@ RULES = [
     ('south mountain',    ('', 'South Mountain Company', "Martha's Vineyard, MA")),
     ('pauls school',      ("St. Paul's School", 'Annum Architects', 'Concord, NH')),
     ('mv-',               ('', '', "Martha's Vineyard, MA")),
+    ('bu aerial',         ('Boston University Center for Computing & Data Sciences', 'KPMB Architects · Suffolk Construction', 'Boston, MA')),
+    ('350a6059',          ('Boston University Center for Computing & Data Sciences', 'KPMB Architects · Suffolk Construction', 'Boston, MA')),
 ]
 PHOTO = re.compile(r'\.(jpe?g|png|tiff?)$', re.I)
 
