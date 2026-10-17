@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://barsantiphotography.com/sitemap.xml
