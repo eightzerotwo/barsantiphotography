@@ -239,11 +239,17 @@ function compose(photos, texts, startIndex = 0) {
   const isP = (p) => p.ratio < 1;
   const emit = (c, s, y, h, html, kind, ratio = 0) => cells.push({ c, s, y, h, html, kind, ratio });
   const img = (p, s) => picture(p, { sizes: `(max-width: 640px) 100vw, ${Math.round((s / 12) * 100)}vw`, index: i++ });
-  const fits = (it, s) => it.kind === 'text' ? (s >= 4 && s <= 5) : (isP(it.p) ? s <= 5 : true);
+  // Portraits stay in columns up to 5 wide. A portrait-heavy set (half or more portraits) relaxes this:
+  // runs of portraits take two equal 6-wide columns, and a portrait may fill a wider column when no
+  // landscape is coming, so neither column stalls. Landscape-led sets keep their layouts exactly.
+  const portraitHeavy = photos.filter(isP).length * 2 >= photos.length;
+  const landscapeAhead = () => q.slice(0, 6).some((x) => x.kind === 'img' && !isP(x.p));
+  const fits = (it, s) => it.kind === 'text' ? (s >= 4 && s <= 5) : (isP(it.p) ? (s <= 5 || (portraitHeavy && (s <= 6 || !landscapeAhead()))) : true);
   const height = (it, s) => it.kind === 'text' ? it.minCqw + 2 : H(s, it.p.ratio);
 
   while (q.length) {
-    const [wa, wb] = SPLITS[seg++ % SPLITS.length];
+    const portraitRun = portraitHeavy && q.slice(0, 6).filter((x) => x.kind === 'img' && isP(x.p)).length >= 4;
+    const [wa, wb] = portraitRun ? [6, 6] : SPLITS[seg++ % SPLITS.length];
     const cols = [{ c: 1, s: wa, y: top }, { c: 1 + wa, s: wb, y: top }];
     let placed = 0;
     while (q.length) {
