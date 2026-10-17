@@ -16,10 +16,7 @@
   },
   "clients": [],
   "publications": [],
-  "collectionOrder": [
-    "Residential",
-    "Commercial"
-  ],
+  "collectionOrder": ["Residential", "Commercial", "Art"],
   "firms": {
     "SMMA": "https://www.smma.com/",
     "Lee Kennedy Co.": "https://www.leekennedy.com/",

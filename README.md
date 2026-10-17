@@ -8,6 +8,7 @@ folder into the site:
                                            and every other landscape root photo (frame = average shape)
     ~/Desktop/Website/Residential/*.jpg -> residential.html
     ~/Desktop/Website/<Any folder>/     -> one page per folder, added to the nav automatically
+    ~/Desktop/Website/Art/<Project>/    -> a project subfolder: its photos run on the folder's page, captioned with the project name
     ~/Desktop/Website/Slideshow/        -> the hero rotation only (not in the nav, not in the grid);
                                            photos must share the first one's shape
 

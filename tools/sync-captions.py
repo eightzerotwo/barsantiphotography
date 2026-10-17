@@ -22,6 +22,7 @@ RULES = [
     ('mv-',               ('', '', "Martha's Vineyard, MA")),
     ('bu aerial',         ('Boston University Center for Computing & Data Sciences', 'KPMB Architects · Suffolk Construction', 'Boston, MA')),
     ('350a6059',          ('Boston University Center for Computing & Data Sciences', 'KPMB Architects · Suffolk Construction', 'Boston, MA')),
+    ('art at the kent/',  ('Art at the Kent', '', 'Calais, VT')),   # project subfolder: matched on folder/filename
 ]
 PHOTO = re.compile(r'\.(jpe?g|png|tiff?)$', re.I)
 
@@ -41,18 +42,24 @@ def by_rule(name):
         if tok in n: return v
     return None
 
-folders = [ROOT] + [os.path.join(ROOT, d) for d in sorted(os.listdir(ROOT)) if os.path.isdir(os.path.join(ROOT, d)) and not d.startswith('.')]
+folders = [ROOT]
+for d in sorted(os.listdir(ROOT)):
+    p = os.path.join(ROOT, d)
+    if not os.path.isdir(p) or d.startswith('.'): continue
+    folders.append(p)
+    folders += [os.path.join(p, e) for e in sorted(os.listdir(p)) if os.path.isdir(os.path.join(p, e)) and not e.startswith('.')]  # project subfolders
+rel = lambda d, f: os.path.relpath(os.path.join(d, f), ROOT)
 by_size = {}
 for d in folders:  # first pass: everything we can learn, keyed by file size
     kept = read_sheet(d)
     for f in os.listdir(d):
         if not PHOTO.search(f): continue
-        v = kept.get(f) or by_rule(f)
+        v = kept.get(f) or by_rule(rel(d, f))
         if v: by_size.setdefault(os.path.getsize(os.path.join(d, f)), v)
 for d in folders:  # second pass: write sheets
     kept = read_sheet(d); lines = []
     for f in sorted([f for f in os.listdir(d) if PHOTO.search(f)], key=str.lower):
-        v = kept.get(f) or by_rule(f) or by_size.get(os.path.getsize(os.path.join(d, f)))
+        v = kept.get(f) or by_rule(rel(d, f)) or by_size.get(os.path.getsize(os.path.join(d, f)))
         lines.append(f"{f} | {v[0]} | {v[1]} | {v[2]}" if v else f"{f} |  |  | ")
     open(os.path.join(d, 'captions.txt'), 'w').write(HEADER + '\n'.join(lines) + '\n')
     print(f"{os.path.basename(d) or 'root'}: {sum(1 for l in lines if l.split('|')[1].strip() or l.split('|')[2].strip() or l.split('|')[3].strip())}/{len(lines)} credited")

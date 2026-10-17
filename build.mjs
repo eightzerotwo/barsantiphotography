@@ -52,9 +52,17 @@ function dims(p) {
   return { w, h };
 }
 
-function listFolder(dir) {
-  const files = readdirSync(dir).filter((f) => isPhoto(f) && statSync(join(dir, f)).isFile());
+// A collection folder may hold project subfolders (e.g. Art/Art at the Kent/): their photos run on the
+// collection's page after the folder's own photos, captioned with the project name unless captions.txt
+// says otherwise. Subfolders are ordered by the collection's order.txt (folder names count as entries).
+function listFolder(dir, project = null) {
+  const entries = readdirSync(dir).filter((f) => !f.startsWith('.'));
+  const files = entries.filter((f) => isPhoto(f) && statSync(join(dir, f)).isFile());
   const order = readLines(join(dir, 'order.txt'));
+  const subs = project ? [] : entries.filter((f) => statSync(join(dir, f)).isDirectory() && dir !== SITE.photos);
+  const subRank = (f) => (order.includes(f) ? order.indexOf(f) : order.length + 1);
+  subs.sort((a, b) => subRank(a) - subRank(b) || a.localeCompare(b, undefined, { numeric: true }));
+  const fromSubs = subs.flatMap((sub) => listFolder(join(dir, sub), sub).map((p) => ({ ...p, file: `${sub}/${p.file}`, slug: `${slugify(basename(dir))}-${p.slug}` })));
   // captions.txt: "filename | caption | architect / builder | town, state" (later fields optional)
   const caps = Object.fromEntries(
     readLines(join(dir, 'captions.txt')).map((l) => l.split('|').map((s) => s.trim())).filter((a) => a.length >= 2).map((a) => [a[0], { caption: a[1], credit: a[2] ?? '', town: a[3] ?? '' }])
@@ -75,13 +83,13 @@ function listFolder(dir) {
       src,
       slug,
       w, h, ratio: w / h,
-      caption: caps[f]?.caption ?? autoCaption(f),
+      caption: caps[f]?.caption ?? (project ?? autoCaption(f)),
       credit: caps[f]?.credit ?? '',
       town: caps[f]?.town ?? '',
       aerial: /^dji/i.test(f),
       mtime: statSync(src).mtimeMs,
     };
-  });
+  }).concat(fromSubs);
 }
 
 const SLIDESHOW = 'Slideshow';   // optional folder: its photos become the hero rotation and nothing else
